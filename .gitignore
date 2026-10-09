@@ -9,27 +9,24 @@ __pycache__/
 venv/
 ENV/
 env/
-env.bak/
-venv.bak/
 
-# Project data & trained assets
+# Project dataset & heavy models
+dataset
+dataset/
 dataset/*
-!dataset/.gitkeep
+dataset/**
 
+models/best_garbage_cnn.keras
+models/best_garbage_cnn.tflite
 models/*
 !models/.gitkeep
-!models/best_garbage_cnn.keras
-!models/best_garbage_cnn.tflite
 !models/best_garbage_cnn.onnx
 
+results/
 results/*
-!results/.gitkeep
 
 static/uploads/*
 !static/uploads/.gitkeep
-
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints/
 
 # IDE & Editor files
 .vscode/
