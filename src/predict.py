@@ -2,16 +2,16 @@
 predict.py
 ----------
 Inference module for Garbage Classification CNN.
-Supports model loading, single image preprocessing, batch inference,
-and structured prediction output with confidence scores and eco-tips.
+Supports lightweight TFLite inference for production serverless deployment (Vercel)
+and full Keras model inference for local development.
 """
 
 import os
+import io
 from pathlib import Path
 from typing import Dict, Union, List
 import numpy as np
 from PIL import Image
-import tensorflow as tf
 
 CLASSES = ['cardboard', 'glass', 'metal', 'paper', 'plastic', 'trash']
 
@@ -49,30 +49,39 @@ RECYCLING_GUIDANCE = {
 }
 
 _LOADED_MODEL = None
+_LOADED_INTERPRETER = None
 
 
-def load_model(model_path: str = "models/best_garbage_cnn.keras") -> tf.keras.Model:
+def get_tflite_interpreter(tflite_path="models/best_garbage_cnn.tflite"):
+    global _LOADED_INTERPRETER
+    if _LOADED_INTERPRETER is not None:
+        return _LOADED_INTERPRETER
+
+    # Try tflite_runtime first (lightweight for Vercel)
+    try:
+        import tflite_runtime.interpreter as tflite
+        _LOADED_INTERPRETER = tflite.Interpreter(model_path=tflite_path)
+    except ImportError:
+        try:
+            import tensorflow.lite as tflite
+            _LOADED_INTERPRETER = tflite.Interpreter(model_path=tflite_path)
+        except Exception as e:
+            _LOADED_INTERPRETER = None
+
+    if _LOADED_INTERPRETER is not None:
+        _LOADED_INTERPRETER.allocate_tensors()
+
+    return _LOADED_INTERPRETER
+
+
+def preprocess_image_numpy(image_input: Union[str, Path, bytes, Image.Image], target_size=(224, 224)) -> np.ndarray:
     """
-    Loads saved Keras model artifact with caching.
-    """
-    global _LOADED_MODEL
-    abs_path = Path(model_path).resolve()
-    if not abs_path.exists():
-        raise FileNotFoundError(f"Model file not found at '{abs_path}'. Please run training first.")
-
-    if _LOADED_MODEL is None:
-        _LOADED_MODEL = tf.keras.models.load_model(str(abs_path))
-    return _LOADED_MODEL
-
-
-def preprocess_image(image_input: Union[str, Path, bytes, Image.Image], target_size=(224, 224)) -> np.ndarray:
-    """
-    Preprocesses input image into standard (1, 224, 224, 3) tensor with MobileNetV2 preprocessing.
+    Preprocesses input image into standard (1, 224, 224, 3) MobileNetV2 tensor using pure NumPy.
+    Formula: (img / 127.5) - 1.0
     """
     if isinstance(image_input, (str, Path)):
         img = Image.open(str(image_input)).convert("RGB")
     elif isinstance(image_input, bytes):
-        import io
         img = Image.open(io.BytesIO(image_input)).convert("RGB")
     elif isinstance(image_input, Image.Image):
         img = image_input.convert("RGB")
@@ -81,24 +90,48 @@ def preprocess_image(image_input: Union[str, Path, bytes, Image.Image], target_s
 
     img_resized = img.resize(target_size, Image.Resampling.BILINEAR)
     img_array = np.array(img_resized, dtype=np.float32)
-    img_preprocessed = tf.keras.applications.mobilenet_v2.preprocess_input(img_array)
+    img_preprocessed = (img_array / 127.5) - 1.0
     return np.expand_dims(img_preprocessed, axis=0)
 
 
 def predict_image(
     image_input: Union[str, Path, bytes, Image.Image],
-    model_path: str = "models/best_garbage_cnn.keras"
+    model_path: str = "models/best_garbage_cnn.tflite"
 ) -> Dict:
     """
     Executes garbage classification prediction on a single input image.
-
-    Returns:
-        dict: Containing predicted_class, confidence, probabilities, and guidance.
+    Tries lightweight TFLite inference first, with fallback to full TensorFlow Keras if available.
     """
-    model = load_model(model_path)
-    tensor = preprocess_image(image_input)
-    
-    preds = model.predict(tensor, verbose=0)[0]
+    tensor = preprocess_image_numpy(image_input)
+    preds = None
+
+    # Option 1: TFLite Inference (Ultra-lightweight for Vercel Serverless)
+    tflite_file = "models/best_garbage_cnn.tflite"
+    if os.path.exists(tflite_file):
+        interpreter = get_tflite_interpreter(tflite_file)
+        if interpreter is not None:
+            input_details = interpreter.get_input_details()
+            output_details = interpreter.get_output_details()
+            interpreter.set_tensor(input_details[0]['index'], tensor)
+            interpreter.invoke()
+            preds = interpreter.get_tensor(output_details[0]['index'])[0]
+
+    # Option 2: Fallback to Keras model if TFLite not available
+    if preds is None:
+        keras_file = "models/best_garbage_cnn.keras"
+        if os.path.exists(keras_file):
+            try:
+                import tensorflow as tf
+                global _LOADED_MODEL
+                if _LOADED_MODEL is None:
+                    _LOADED_MODEL = tf.keras.models.load_model(keras_file)
+                preds = _LOADED_MODEL.predict(tensor, verbose=0)[0]
+            except Exception:
+                pass
+
+    if preds is None:
+        raise RuntimeError("No trained model file found or model execution failed.")
+
     best_idx = int(np.argmax(preds))
     confidence = float(preds[best_idx])
     predicted_class = CLASSES[best_idx]
@@ -126,5 +159,4 @@ def predict_image(
 
 
 if __name__ == "__main__":
-    import sys
     print("[INFO] Predict module ready.")

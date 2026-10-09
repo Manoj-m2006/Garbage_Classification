@@ -19,6 +19,7 @@ dataset/*
 models/*
 !models/.gitkeep
 !models/best_garbage_cnn.keras
+!models/best_garbage_cnn.tflite
 
 results/*
 !results/.gitkeep
