@@ -1,3 +1,14 @@
+---
+title: EcoSort - Garbage Classification System
+emoji: 🗑️
+colorFrom: green
+colorTo: emerald
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+---
+
 # Garbage Classification System (Custom Deep CNN + Flask Web UI)
 
 An end-to-end, production-grade Deep Learning project using a custom Convolutional Neural Network (CNN) in TensorFlow 2.x for multi-class garbage classification across 6 waste categories (Cardboard, Glass, Metal, Paper, Plastic, Trash). Integrated with a modern glassmorphic Flask web interface for real-time inference and recycling guidance.

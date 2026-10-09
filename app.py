@@ -131,9 +131,11 @@ def api_stats():
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    port = int(os.environ.get("PORT", 5000))
     print("========================================")
     print("STARTING GARBAGE CLASSIFIER WEB APP")
     print("========================================")
-    print("Access UI at: http://localhost:5000")
+    print(f"Access UI at: http://localhost:{port}")
     print("========================================\n")
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=True)
+
