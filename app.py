@@ -107,16 +107,28 @@ def api_sample_predict(category: str):
         return jsonify({'error': f'Sample prediction error: {str(e)}'}), 500
 
 
+@app.route('/health', methods=['GET'])
 @app.route('/api/health', methods=['GET'])
 def api_health():
-    """Health check endpoint."""
-    model_exists = os.path.exists("models/best_garbage_cnn.keras")
+    """Robust Health Check Endpoint for Cloud Platform Monitoring (Render, HF, Docker, AWS)."""
+    keras_exists = os.path.exists("models/best_garbage_cnn.keras")
+    onnx_exists = os.path.exists("models/best_garbage_cnn.onnx")
+    tflite_exists = os.path.exists("models/best_garbage_cnn.tflite")
+    
+    is_ready = onnx_exists or keras_exists or tflite_exists
+    
     return jsonify({
-        'status': 'healthy',
-        'model_trained': model_exists,
-        'model_path': 'models/best_garbage_cnn.keras',
-        'classes': CLASSES
-    }), 200
+        'status': 'healthy' if is_ready else 'degraded',
+        'ready': is_ready,
+        'models': {
+            'onnx': onnx_exists,
+            'keras': keras_exists,
+            'tflite': tflite_exists
+        },
+        'active_classes': CLASSES,
+        'class_count': len(CLASSES),
+        'version': '1.0.0'
+    }), 200 if is_ready else 503
 
 
 @app.route('/api/stats', methods=['GET'])
