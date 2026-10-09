@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="EcoSort — Professional AI Waste Sorting & Recycling Platform. Classify garbage items with instant computer vision, animated recycling bins, and eco-impact analytics.">
+  <title>EcoSort — Smart Trash & Waste Sorting AI Platform</title>
+
+  <!-- Google Font: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- Outer Frame Replicating Landing Page Design -->
+  <div class="canvas-frame">
+    
+    <!-- Animated Background Pattern Canvas & SVG Vector Layers -->
+    <canvas id="patternCanvas" class="pattern-canvas-layer"></canvas>
+
+    <div class="decor-bg">
+      <!-- Animated Seamless Pattern Grid Overlay -->
+      <div class="svg-pattern-grid"></div>
+
+      <!-- Animated SVG Gears & Eco Symbols -->
+      <svg class="decor-gear-svg gear-1" viewBox="0 0 100 100">
+        <path d="M50,15 L55,25 L65,22 L67,33 L78,33 L76,44 L85,49 L80,59 L88,67 L80,73 L83,84 L72,86 L70,97 L60,94 L55,103 L47,97 L41,103 L37,93 L27,95 L26,84 L16,83 L18,72 L9,67 L17,58 L12,48 L22,44 L20,33 L31,33 L33,22 L43,25 Z" fill="none" stroke="rgba(20,184,166,0.12)" stroke-width="3"/>
+        <circle cx="50" cy="50" r="18" fill="none" stroke="rgba(20,184,166,0.15)" stroke-width="3"/>
+      </svg>
+
+      <svg class="decor-gear-svg gear-2" viewBox="0 0 100 100">
+        <path d="M50,15 L55,25 L65,22 L67,33 L78,33 L76,44 L85,49 L80,59 L88,67 L80,73 L83,84 L72,86 L70,97 L60,94 L55,103 L47,97 L41,103 L37,93 L27,95 L26,84 L16,83 L18,72 L9,67 L17,58 L12,48 L22,44 L20,33 L31,33 L33,22 L43,25 Z" fill="none" stroke="rgba(124,58,237,0.1)" stroke-width="3"/>
+        <circle cx="50" cy="50" r="18" fill="none" stroke="rgba(124,58,237,0.12)" stroke-width="3"/>
+      </svg>
+
+      <svg class="decor-gear-svg gear-3" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="35" fill="none" stroke="rgba(161,98,7,0.08)" stroke-width="2" stroke-dasharray="6,6"/>
+      </svg>
+
+      <!-- Floating Animated SVG Leaves & Eco Icons -->
+      <div class="floating-pattern-icon icon-leaf-1">🍃</div>
+      <div class="floating-pattern-icon icon-leaf-2">🌿</div>
+      <div class="floating-pattern-icon icon-recycle-1">♻️</div>
+      <div class="floating-pattern-icon icon-leaf-3">🌱</div>
+      <div class="floating-pattern-icon icon-recycle-2">♻️</div>
+      <div class="floating-pattern-icon icon-drop-1">💧</div>
+
+      <!-- Glowing Pulsing Eco Nodes -->
+      <div class="eco-pulse-node node-1"></div>
+      <div class="eco-pulse-node node-2"></div>
+      <div class="eco-pulse-node node-3"></div>
+      <div class="eco-pulse-node node-4"></div>
+
+      <!-- Ambient Soft Glowing Gradient Circles -->
+      <div class="decor-circle-1"></div>
+      <div class="decor-circle-2"></div>
+      <div class="decor-circle-3"></div>
+    </div>
+
+    <!-- 1. TOP NAVIGATION BAR -->
+    <nav class="top-nav">
+      <div class="brand-box">
+        <div class="brand-icon-emblem">♻️</div>
+        <div class="brand-text-title">EcoSort AI</div>
+      </div>
+
+      <ul class="nav-menu-links">
+        <li><a href="#classifier" class="nav-link">Classifier</a></li>
+        <li><a href="#station" class="nav-link">Recycling Bins</a></li>
+        <li><a href="#impact" class="nav-link">Impact Calculator</a></li>
+        <li><a href="#faq" class="nav-link">FAQ</a></li>
+      </ul>
+
+      <a href="#classifier" class="btn-nav-action">Live Scanner</a>
+    </nav>
+
+    <!-- 2. HERO SECTION WITH ILLUSTRATED BINS STATION -->
+    <section class="hero-section" id="station">
+      
+      <div class="hero-content-box">
+        <div class="hero-pill-tag">
+          <span>✨</span> MobileNetV2 Deep Learning AI
+        </div>
+        <h1 class="hero-main-heading">
+          Smart Trash & <span>Waste Sorting</span>
+        </h1>
+        <p class="hero-intro-text">
+          Instant computer vision classification for Cardboard, Glass, Metal, Paper, Plastic, and General Waste with step-by-step disposal guidelines.
+        </p>
+
+        <div class="hero-stats-row">
+          <div class="stat-pill-item">
+            <div class="stat-pill-num">80.2%</div>
+            <div class="stat-pill-lbl">AI Test Accuracy</div>
+          </div>
+          <div class="stat-pill-item">
+            <div class="stat-pill-num">2,500+</div>
+            <div class="stat-pill-lbl">Training Images</div>
+          </div>
+          <div class="stat-pill-item">
+            <div class="stat-pill-num">6</div>
+            <div class="stat-pill-lbl">Waste Categories</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Illustrated 3D Bins Graphic Station (Replicating Reference Image) -->
+      <div class="hero-bins-graphic">
+        
+        <!-- Brown Bin (E-Waste / Metal) -->
+        <div class="illustrated-bin" data-bin-type="brown" id="binBrown">
+          <div class="bin-top-lid"></div>
+          <div class="bin-handle-slot"></div>
+          <div class="bin-recycle-emblem">🥫</div>
+          <div class="bin-label-title">Metal & E-Waste</div>
+        </div>
+
+        <!-- Mint Bin (Glass / Plastic) -->
+        <div class="illustrated-bin" data-bin-type="mint" id="binMint">
+          <div class="bin-top-lid"></div>
+          <div class="bin-handle-slot"></div>
+          <div class="bin-recycle-emblem">🍾</div>
+          <div class="bin-label-title">Glass & Plastic</div>
+        </div>
+
+        <!-- Purple Bin (Paper / Cardboard) -->
+        <div class="illustrated-bin" data-bin-type="purple" id="binPurple">
+          <div class="bin-top-lid"></div>
+          <div class="bin-handle-slot"></div>
+          <div class="bin-recycle-emblem">📦</div>
+          <div class="bin-label-title">Paperboard</div>
+        </div>
+
+        <!-- Dark Bin (General Trash) -->
+        <div class="illustrated-bin" data-bin-type="dark" id="binDark">
+          <div class="bin-top-lid"></div>
+          <div class="bin-handle-slot"></div>
+          <div class="bin-recycle-emblem">🗑️</div>
+          <div class="bin-label-title">General Waste</div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- 3. MAIN CLASSIFIER WORKSPACE SECTION -->
+    <section class="workspace-container" id="classifier">
+      
+      <div class="workspace-card-box">
+        
+        <div class="ws-grid">
+          
+          <!-- Input Side -->
+          <div>
+            
+            <div class="mode-toggle-bar">
+              <button class="mode-btn active" id="tabUpload">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Upload Photo
+              </button>
+              <button class="mode-btn" id="tabCamera">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Live Camera
+              </button>
+            </div>
+
+            <!-- Upload Area -->
+            <div class="file-drop-box" id="fileDropBox">
+              <div class="drop-icon-circle">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                </svg>
+              </div>
+              <div style="font-weight: 800; font-size: 1rem; margin-bottom: 0.2rem; color: #0f172a;">Drag & drop item photo here</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">or click to choose from computer (.jpg, .png, .webp)</div>
+              <input type="file" id="fileInput" accept="image/*" style="display:none;">
+            </div>
+
+            <!-- Camera Scanner Area -->
+            <div class="camera-container" id="cameraContainer">
+              <video id="webcamVideo" autoplay playsinline></video>
+              <div class="laser-scan-line"></div>
+            </div>
+
+            <!-- Preview Area -->
+            <div class="preview-display-box" id="previewDisplayBox">
+              <img id="imagePreview" src="" alt="Waste item photo">
+              <button class="btn-clear-preview" id="btnClearPreview" title="Clear photo">&times;</button>
+            </div>
+
+            <!-- Sample Gallery Thumbnails -->
+            <div class="sample-gallery-box">
+              <div class="sample-gallery-title">Click a sample photo to scan</div>
+              <div class="sample-thumb-grid">
+                
+                <div class="thumb-card" data-sample="cardboard">
+                  <img src="/static/samples/cardboard.jpg" alt="Cardboard" onerror="this.src='https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=100'">
+                  <div class="thumb-card-name">Cardboard</div>
+                </div>
+
+                <div class="thumb-card" data-sample="glass">
+                  <img src="/static/samples/glass.jpg" alt="Glass" onerror="this.src='https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?w=100'">
+                  <div class="thumb-card-name">Glass</div>
+                </div>
+
+                <div class="thumb-card" data-sample="metal">
+                  <img src="/static/samples/metal.jpg" alt="Metal" onerror="this.src='https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=100'">
+                  <div class="thumb-card-name">Metal</div>
+                </div>
+
+                <div class="thumb-card" data-sample="paper">
+                  <img src="/static/samples/paper.jpg" alt="Paper" onerror="this.src='https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=100'">
+                  <div class="thumb-card-name">Paper</div>
+                </div>
+
+                <div class="thumb-card" data-sample="plastic">
+                  <img src="/static/samples/plastic.jpg" alt="Plastic" onerror="this.src='https://images.unsplash.com/photo-1526951521990-620dc14c214b?w=100'">
+                  <div class="thumb-card-name">Plastic</div>
+                </div>
+
+                <div class="thumb-card" data-sample="trash">
+                  <img src="/static/samples/trash.jpg" alt="Trash" onerror="this.src='https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=100'">
+                  <div class="thumb-card-name">Trash</div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Start Scan Button -->
+            <button class="btn-start-scan" id="btnStartScan" disabled>
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+              Classify Waste Item
+            </button>
+
+          </div>
+
+          <!-- Output Display Side -->
+          <div>
+            
+            <!-- Out Placeholder -->
+            <div class="out-placeholder" id="outPlaceholder">
+              <div style="font-size: 3rem; margin-bottom: 0.5rem;">♻️</div>
+              <div style="font-weight: 800; color: #0f172a; font-size: 1.15rem; margin-bottom: 0.25rem;">No Item Analyzed</div>
+              <div style="font-size: 0.85rem;">Upload an image or select a sample photo to classify the material and open the corresponding recycling bin.</div>
+            </div>
+
+            <!-- Out Loading -->
+            <div class="out-loading" id="outLoading">
+              <div class="spinner-mint"></div>
+              <div style="font-weight: 800; color: #0f172a; font-size: 1.05rem; margin-bottom: 0.2rem;">Scanning visual tensor features...</div>
+              <div style="font-size: 0.85rem; color: var(--text-muted);">Opening corresponding recycling station bin...</div>
+            </div>
+
+            <!-- Out Results -->
+            <div class="out-results" id="outResults">
+              
+              <!-- Result Banner Card -->
+              <div class="res-card-banner" id="resCardBanner" data-target-cls="cardboard">
+                <div class="res-left-flex">
+                  <div class="res-big-emoji" id="resBigEmoji">📦</div>
+                  <div>
+                    <div class="res-cls-name" id="resClsName">Cardboard</div>
+                    <div class="res-bin-tag-pill" id="resBinTagPill">Paperboard Bin</div>
+                  </div>
+                </div>
+                <div class="res-right-score">
+                  <div class="res-score-digits" id="resScoreDigits">98.5%</div>
+                  <div style="font-size: 0.7rem; font-weight: 700; opacity: 0.9;">Match Score</div>
+                </div>
+              </div>
+
+              <!-- Action Disposal Tip -->
+              <div class="disposal-advice-card">
+                <div class="advice-card-head">
+                  <span id="adviceTitleText">Recycle in Paper & Paperboard Bin</span>
+                  <button class="btn-copy-advice" id="btnCopyAdvice">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                    Copy Advice
+                  </button>
+                </div>
+                <div class="advice-text" id="adviceText">Flatten boxes to save space. Remove heavy tape or wax coatings.</div>
+              </div>
+
+              <!-- Confidence Probability Bars -->
+              <div class="confidence-bars-box">
+                <div class="bars-heading-text">Class Probabilities Breakdown</div>
+                <div id="probBarsFlex"></div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- 4. ECO IMPACT CALCULATOR FEATURE WIDGET -->
+    <section class="impact-calculator-section" id="impact">
+      
+      <div class="impact-card-box">
+        <div>
+          <h2 class="impact-title">🌱 Calculate Your Recycling Impact</h2>
+          <p class="impact-desc">Enter the number of waste items you recycled to calculate your saved energy, reduced carbon emissions, and saved landfill volume.</p>
+
+          <div class="impact-controls">
+            <label style="font-weight: 800; font-size: 0.9rem; color: #065f46;">Recycled Items:</label>
+            <input type="number" id="inputItemCount" class="input-number-items" value="25" min="1" max="1000">
+          </div>
+        </div>
+
+        <div class="impact-stats-grid">
+          <div class="impact-stat-card">
+            <div class="impact-stat-val" id="valCo2">12.5 kg</div>
+            <div class="impact-stat-lbl">CO2 Avoided</div>
+          </div>
+          <div class="impact-stat-card">
+            <div class="impact-stat-val" id="valKwh">35.0 kWh</div>
+            <div class="impact-stat-lbl">Energy Saved</div>
+          </div>
+          <div class="impact-stat-card">
+            <div class="impact-stat-val" id="valLandfill">62.5 L</div>
+            <div class="impact-stat-lbl">Landfill Saved</div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 5. COLLAPSIBLE FAQ ACCORDION -->
+    <section class="faq-section" id="faq">
+      <h2 class="faq-title">Frequently Asked Questions</h2>
+      
+      <div class="faq-accordion-grid">
+        
+        <div class="faq-item-card">
+          <div class="faq-item-header">
+            <span>How does the EcoSort CNN AI classify items?</span>
+            <span>+</span>
+          </div>
+          <div class="faq-item-body">
+            EcoSort utilizes a MobileNetV2 deep Convolutional Neural Network pre-trained on ImageNet. The AI evaluates edge patterns, textures, reflectivity, and material shape features to categorize items into Cardboard, Glass, Metal, Paper, Plastic, or Trash.
+          </div>
+        </div>
+
+        <div class="faq-item-card">
+          <div class="faq-item-header">
+            <span>Why is proper garbage classification important?</span>
+            <span>+</span>
+          </div>
+          <div class="faq-item-body">
+            Contamination occurs when non-recyclable materials are placed in recycling bins, which can ruin entire batches of recyclable materials. Proper sorting ensures clean recycling streams and reduces landfill overflow.
+          </div>
+        </div>
+
+        <div class="faq-item-card">
+          <div class="faq-item-header">
+            <span>Can I use the live camera on mobile devices?</span>
+            <span>+</span>
+          </div>
+          <div class="faq-item-body">
+            Yes! Click the <strong>Live Camera</strong> tab and grant camera access. On smartphones, it will default to your rear camera for quick point-and-scan waste sorting.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+      EcoSort AI Platform &bull; MobileNetV2 Deep Learning Architecture &bull; TensorFlow 2.x
+    </footer>
+
+  </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

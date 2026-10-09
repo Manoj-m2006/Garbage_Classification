@@ -1,0 +1,40 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Project data & trained assets
+dataset/*
+!dataset/.gitkeep
+
+models/*
+!models/.gitkeep
+!models/best_garbage_cnn.keras
+
+results/*
+!results/.gitkeep
+
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
