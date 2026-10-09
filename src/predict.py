@@ -2,7 +2,7 @@
 predict.py
 ----------
 Inference module for Garbage Classification CNN.
-Supports lightweight TFLite inference for production serverless deployment (Vercel)
+Supports lightweight ONNXRuntime and TFLite inference for production Vercel deployment
 and full Keras model inference for local development.
 """
 
@@ -48,30 +48,22 @@ RECYCLING_GUIDANCE = {
     }
 }
 
-_LOADED_MODEL = None
-_LOADED_INTERPRETER = None
+_LOADED_ONNX_SESSION = None
+_LOADED_TFLITE_INTERPRETER = None
+_LOADED_KERAS_MODEL = None
 
 
-def get_tflite_interpreter(tflite_path="models/best_garbage_cnn.tflite"):
-    global _LOADED_INTERPRETER
-    if _LOADED_INTERPRETER is not None:
-        return _LOADED_INTERPRETER
-
-    # Try tflite_runtime first (lightweight for Vercel)
+def get_onnx_session(onnx_path="models/best_garbage_cnn.onnx"):
+    global _LOADED_ONNX_SESSION
+    if _LOADED_ONNX_SESSION is not None:
+        return _LOADED_ONNX_SESSION
     try:
-        import tflite_runtime.interpreter as tflite
-        _LOADED_INTERPRETER = tflite.Interpreter(model_path=tflite_path)
-    except ImportError:
-        try:
-            import tensorflow.lite as tflite
-            _LOADED_INTERPRETER = tflite.Interpreter(model_path=tflite_path)
-        except Exception as e:
-            _LOADED_INTERPRETER = None
-
-    if _LOADED_INTERPRETER is not None:
-        _LOADED_INTERPRETER.allocate_tensors()
-
-    return _LOADED_INTERPRETER
+        import onnxruntime as ort
+        if os.path.exists(onnx_path):
+            _LOADED_ONNX_SESSION = ort.InferenceSession(onnx_path)
+    except Exception:
+        _LOADED_ONNX_SESSION = None
+    return _LOADED_ONNX_SESSION
 
 
 def preprocess_image_numpy(image_input: Union[str, Path, bytes, Image.Image], target_size=(224, 224)) -> np.ndarray:
@@ -96,41 +88,56 @@ def preprocess_image_numpy(image_input: Union[str, Path, bytes, Image.Image], ta
 
 def predict_image(
     image_input: Union[str, Path, bytes, Image.Image],
-    model_path: str = "models/best_garbage_cnn.tflite"
+    model_path: str = "models/best_garbage_cnn.onnx"
 ) -> Dict:
     """
     Executes garbage classification prediction on a single input image.
-    Tries lightweight TFLite inference first, with fallback to full TensorFlow Keras if available.
+    Prioritizes ONNXRuntime for lightweight Vercel deployment (<50MB total bundle),
+    with fallbacks to TFLite and Keras.
     """
     tensor = preprocess_image_numpy(image_input)
     preds = None
 
-    # Option 1: TFLite Inference (Ultra-lightweight for Vercel Serverless)
-    tflite_file = "models/best_garbage_cnn.tflite"
-    if os.path.exists(tflite_file):
-        interpreter = get_tflite_interpreter(tflite_file)
-        if interpreter is not None:
-            input_details = interpreter.get_input_details()
-            output_details = interpreter.get_output_details()
-            interpreter.set_tensor(input_details[0]['index'], tensor)
-            interpreter.invoke()
-            preds = interpreter.get_tensor(output_details[0]['index'])[0]
+    # Priority 1: ONNX Runtime (Vercel Serverless Production Ready)
+    onnx_file = "models/best_garbage_cnn.onnx"
+    if os.path.exists(onnx_file):
+        session = get_onnx_session(onnx_file)
+        if session is not None:
+            input_name = session.get_inputs()[0].name
+            raw_out = session.run(None, {input_name: tensor})[0][0]
+            preds = raw_out
 
-    # Option 2: Fallback to Keras model if TFLite not available
+    # Priority 2: TFLite Inference
+    if preds is None:
+        tflite_file = "models/best_garbage_cnn.tflite"
+        if os.path.exists(tflite_file):
+            try:
+                import tflite_runtime.interpreter as tflite
+                interpreter = tflite.Interpreter(model_path=tflite_file)
+                interpreter.allocate_tensors()
+                input_details = interpreter.get_input_details()
+                output_details = interpreter.get_output_details()
+                interpreter.set_tensor(input_details[0]['index'], tensor)
+                interpreter.invoke()
+                preds = interpreter.get_tensor(output_details[0]['index'])[0]
+            except Exception:
+                pass
+
+    # Priority 3: Full TensorFlow Keras Fallback
     if preds is None:
         keras_file = "models/best_garbage_cnn.keras"
         if os.path.exists(keras_file):
             try:
                 import tensorflow as tf
-                global _LOADED_MODEL
-                if _LOADED_MODEL is None:
-                    _LOADED_MODEL = tf.keras.models.load_model(keras_file)
-                preds = _LOADED_MODEL.predict(tensor, verbose=0)[0]
+                global _LOADED_KERAS_MODEL
+                if _LOADED_KERAS_MODEL is None:
+                    _LOADED_KERAS_MODEL = tf.keras.models.load_model(keras_file)
+                preds = _LOADED_KERAS_MODEL.predict(tensor, verbose=0)[0]
             except Exception:
                 pass
 
     if preds is None:
-        raise RuntimeError("No trained model file found or model execution failed.")
+        raise RuntimeError("No valid prediction model found.")
 
     best_idx = int(np.argmax(preds))
     confidence = float(preds[best_idx])
